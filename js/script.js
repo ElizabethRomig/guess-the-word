@@ -18,10 +18,16 @@ const getWord = async function() {
     const randomIndex = Math.floor(Math.random()*wordsArray.length);
     word = wordsArray[randomIndex].trim();
     console.log (word);
-    updateWord();
+    initializeWord();
 }
 
 getWord();
+
+const playerWon = function(){
+        startOver();
+        messages.classList.add("win");
+        messages.innerHTML = '<p class="highlight">You guessed correct the word! Congrats!</p>';
+}
 
 const countGuesses = function(guess){
     const wordUpper = word.toUpperCase();
@@ -31,8 +37,8 @@ const countGuesses = function(guess){
         messages.innerText = `Nope! The word does not contain ${guess}.`;
         numRemainingGuesses--;
     }
-    console.log (numRemainingGuesses);
     if (numRemainingGuesses === 0) {
+        startOver();
         remainingGuesses.innerText = `GAME OVER! You have no remaining guesses.  The word was ${wordUpper}.`
     } else if (numRemainingGuesses === 1){
         numRemaining.innerText = "only ONE"
@@ -41,34 +47,31 @@ const countGuesses = function(guess){
     }
 }
 
-const playerWon = function(){
-    if (wordInProgress.innerText === word.toUpperCase()) {
-        messages.classList.add("win");
-        messages.innerHTML = '<p class="highlight">You guessed correct the word! Congrats!</p>';
-        remainingGuesses.innerText = `You only had ${numRemainingGuesses} missed letters.`
-    }
-}
-
-const updateWord = function(guessedLetters){
+const initializeWord = function(){
     const wordUpper = word.toUpperCase();
     const wordArray = [...wordUpper];
-    //console.log ("Array: ", wordArray);
-    let i=0;
-    for (let letter of wordArray){
-        if (guessedLetters && guessedLetters.includes(letter)) {
-            wordArray[i] = letter;
-        } else {
-            wordArray[i] = "\u25CF";
-
-        }
-        i++;
-    }
-    wordInProgress.innerText = wordArray.join("");
-    playerWon();
+    const wordText = wordArray.map(function(letter){return "\u25CF"});
+    wordInProgress.innerText = wordText.join("");
 }
 
-updateWord(word);
 
+const updateWord = function(guess){
+    const wordUpper = word.toUpperCase();
+    const wordArray = [...wordUpper];
+    const wordText = wordArray.map(function(letter) {
+        if (guessedLetters.includes(letter)) {
+            return letter;
+        } else {
+            return "\u25CF";
+        }
+    })
+    wordInProgress.innerText = wordText.join("");
+    if (wordInProgress.innerText === word.toUpperCase()){
+        playerWon();
+    } else {
+        countGuesses(guess);
+    }
+}
 
 guessBtn.addEventListener("click", function(e) {
     e.preventDefault();
@@ -79,6 +82,21 @@ guessBtn.addEventListener("click", function(e) {
     if (validInput) {
         makeGuess(validInput);
     }
+})
+
+againBtn.addEventListener("click", function() {
+    messages.classList.remove("win");
+    messages.innerText = "";
+    wordInProgress.innerText = "";
+    numRemainingGuesses = 8;
+    guessedLetters = [];
+    guessedLettersDisplay.innerText = guessedLetters;
+    numRemaining.innerText = `${numRemainingGuesses} guesses`;
+    guessBtn.classList.remove("hide");
+    remainingGuesses.classList.remove("hide");
+    wordInProgress.classList.remove("hide");
+    againBtn.classList.add("hide");
+    getWord();
 })
 
 const validateInput = function (input){
@@ -102,10 +120,8 @@ const makeGuess = function(letter){
     } else {
         guessedLetters.push(letter);
         updatePage();
-        updateWord(guessedLetters);
-        countGuesses(letter);
+        updateWord(letter);
     }}
-    //console.log (guessedLetters);
 }
 
 const updatePage = function(){
@@ -115,5 +131,12 @@ const updatePage = function(){
         newLetter.innerText = letter;
         guessedLettersDisplay.append(newLetter);
     }
+}
+
+const startOver = function(){
+    guessBtn.classList.add("hide");
+    remainingGuesses.classList.add("hide");
+    guessedLettersDisplay.classList.add("hide");
+    againBtn.classList.remove("hide");
 }
 
