@@ -6,6 +6,7 @@ const remainingGuesses = document.querySelector(".remaining");
 const numRemaining = document.querySelector(".remaining span");
 const messages = document.querySelector(".message");
 const againBtn = document.querySelector(".play-again");
+const guessForm = document.querySelector(".guess-form");
 
 let word = "magnolia";
 let guessedLetters = [];
@@ -24,9 +25,9 @@ const getWord = async function() {
 getWord();
 
 const playerWon = function(){
-        startOver();
         messages.classList.add("win");
         messages.innerHTML = '<p class="highlight">You guessed correct the word! Congrats!</p>';
+        startOver();
 }
 
 const countGuesses = function(guess){
@@ -38,8 +39,9 @@ const countGuesses = function(guess){
         numRemainingGuesses--;
     }
     if (numRemainingGuesses === 0) {
+        messages.innerText = `GAME OVER! The word was ${wordUpper}.`
+        numRemaining.innerText = `NO guesses`;
         startOver();
-        remainingGuesses.innerText = `GAME OVER! You have no remaining guesses.  The word was ${wordUpper}.`
     } else if (numRemainingGuesses === 1){
         numRemaining.innerText = "only ONE"
     } else {
@@ -95,7 +97,9 @@ againBtn.addEventListener("click", function() {
     guessBtn.classList.remove("hide");
     remainingGuesses.classList.remove("hide");
     wordInProgress.classList.remove("hide");
+    guessedLettersDisplay.classList.remove("hide");
     againBtn.classList.add("hide");
+    guessForm.style.display = "flex";
     getWord();
 })
 
@@ -138,5 +142,6 @@ const startOver = function(){
     remainingGuesses.classList.add("hide");
     guessedLettersDisplay.classList.add("hide");
     againBtn.classList.remove("hide");
+    guessForm.style.display = "none";
 }
 
